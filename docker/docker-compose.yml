@@ -14,8 +14,9 @@ services:
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./database/data:/var/lib/mysql
+    container_name: sayart_database
 
-  php-fpm:
+  php:
     build:
       context: ./php-fpm
     depends_on:
@@ -23,9 +24,10 @@ services:
     environment:
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
-      - DATABASE_URL=mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@database:3306/${DATABASE_NAME}?serverVersion=5.7
+      - DATABASE_URL=mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@database:3306/${DATABASE_NAME}?serverVersion=mariadb-10.5.9
     volumes:
       - ../src:/var/www
+    container_name: sayart_php
 
   nginx:
     build:
@@ -37,9 +39,8 @@ services:
       - ./nginx/conf.d/:/etc/nginx/conf.d
       - ./logs:/var/log
     depends_on:
-      - php-fpm
+      - php
     ports:
       - "80:80"
       - "443:443"
-
-
+    container_name: sayart_nginx
